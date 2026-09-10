@@ -1,0 +1,57 @@
+# PDF Chat API
+
+A REST API that lets you upload PDF documents and chat with them using AI.
+
+## Stack
+- FastAPI
+- Google Gemini (embeddings + chat)
+- Qdrant (vector database)
+- LangChain
+
+## Setup
+
+1. Clone the repo
+2. Create a virtual environment:
+```bash
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+3. Install dependencies:
+```bash
+   pip install -r requirements.txt
+```
+4. Create a `.env` file:
+
+GEMINI_API_KEY=your_gemini_key
+QDRANT_URL=your_qdrant_cluster_url
+QDRANT_API_KEY=your_qdrant_api_key
+COLLECTION_NAME=pdf_docs
+
+5. Run the server:
+```bash
+   uvicorn main:app --reload
+```
+
+## API Endpoints
+
+### Upload a PDF
+
+POST /upload
+Content-Type: multipart/form-data
+Body: file (PDF)
+
+
+### Chat with your PDF
+
+POST /chat
+Content-Type: application/json
+Body: {"question": "Your question here"}
+
+
+### Health check
+
+GET /
+
+
+## Interactive Docs
+Visit `http://localhost:8000/docs` for the Swagger UI.
