@@ -1,57 +1,112 @@
 # PDF Chat API
 
-A REST API that lets you upload PDF documents and chat with them using AI.
+Chat with your PDF documents using AI. Upload any PDF and ask questions about its content through a clean web interface or REST API.
 
-## Stack
-- FastAPI
-- Google Gemini (embeddings + chat)
-- Qdrant (vector database)
-- LangChain
+## Features
+
+- Upload PDF documents and store them in a vector database
+- Ask questions in natural language and get AI-powered answers
+- Clean web UI included
+- Knowledge Base tab to see all uploaded documents
+- REST API with authentication
+- Persistent storage with Qdrant Cloud
+
+## Tech Stack
+
+- **FastAPI** — REST API
+- **Google Gemini** — embeddings + chat (gemini-embedding-001 + gemini-2.5-flash)
+- **Qdrant** — vector database
+- **LangChain** — RAG pipeline
 
 ## Setup
 
-1. Clone the repo
-2. Create a virtual environment:
-```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-```
-3. Install dependencies:
-```bash
-   pip install -r requirements.txt
-```
-4. Create a `.env` file:
+### 1. Clone the repo
 
-GEMINI_API_KEY=your_gemini_key
-QDRANT_URL=your_qdrant_cluster_url
+```bash
+git clone https://github.com/yourusername/pdf-chat-api.git
+cd pdf-chat-api
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file in the root directory:
+
+```
+GEMINI_API_KEY=your_google_gemini_api_key
+QDRANT_URL=https://your-cluster.qdrant.io
 QDRANT_API_KEY=your_qdrant_api_key
 COLLECTION_NAME=pdf_docs
-
-5. Run the server:
-```bash
-   uvicorn main:app --reload
+API_KEY=your_secret_api_key
 ```
+
+- **GEMINI_API_KEY** — get it from [Google AI Studio](https://aistudio.google.com)
+- **QDRANT_URL + QDRANT_API_KEY** — get them from [Qdrant Cloud](https://cloud.qdrant.io) (free tier available)
+- **API_KEY** — any secret string you choose to protect your endpoints
+
+### 4. Run the server
+
+```bash
+uvicorn main:app --reload
+```
+
+### 5. Open the UI
+
+Go to http://localhost:8000/ui
 
 ## API Endpoints
 
-### Upload a PDF
+### `GET /ui`
+Web interface for uploading PDFs and chatting.
 
-POST /upload
-Content-Type: multipart/form-data
-Body: file (PDF)
+### `POST /upload`
+Upload a PDF document.
 
+**Headers:** `x-api-key: your_api_key`
 
-### Chat with your PDF
+**Body:** `multipart/form-data` with `file` field (PDF)
 
-POST /chat
-Content-Type: application/json
-Body: {"question": "Your question here"}
+**Response:**
+```json
+{"message": "Uploaded 12 chunks", "filename": "document.pdf"}
+```
 
+### `POST /chat`
+Ask a question about your uploaded documents.
 
-### Health check
+**Headers:** `x-api-key: your_api_key`, `Content-Type: application/json`
 
-GET /
+**Body:**
+```json
+{"question": "What is this document about?"}
+```
 
+**Response:**
+```json
+{"answer": "This document is about..."}
+```
 
-## Interactive Docs
-Visit `http://localhost:8000/docs` for the Swagger UI.
+### `GET /documents`
+List all uploaded documents.
+
+**Headers:** `x-api-key: your_api_key`
+
+**Response:**
+```json
+{"documents": ["document.pdf", "report.pdf"]}
+```
+
+## Interactive API Docs
+
+Visit http://localhost:8000/docs for the Swagger UI.
+
+## License
+
+MIT
