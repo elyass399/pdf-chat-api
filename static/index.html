@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PDF Chat</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -72,7 +73,6 @@
       overflow: hidden;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: 300px;
       background: #fff;
@@ -153,11 +153,9 @@
 
     .divider { border: none; border-top: 1px solid #e0e0e0; }
 
-    /* PANELS */
     .panel { flex: 1; display: none; flex-direction: column; overflow: hidden; background: #fff; }
     .panel.active { display: flex; }
 
-    /* CHAT */
     .chat-header {
       padding: 14px 28px;
       border-bottom: 1px solid #e0e0e0;
@@ -215,6 +213,12 @@
       line-height: 1.7;
       max-width: 80%;
     }
+
+    .message-bubble p { margin-bottom: 8px; }
+    .message-bubble p:last-child { margin-bottom: 0; }
+    .message-bubble ul, .message-bubble ol { padding-left: 20px; margin-bottom: 8px; }
+    .message-bubble strong { font-weight: 600; }
+    .message-bubble em { font-style: italic; }
 
     .message-bubble.user {
       background: #e8f5e9;
@@ -283,13 +287,12 @@
     .action-btn.primary:hover { background: #333; }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* KNOWLEDGE BASE */
     .kb-header {
-      padding: 24px 28px 0;
+      padding: 24px 28px 16px;
       border-bottom: 1px solid #e0e0e0;
     }
 
-    .kb-header h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+    .kb-header h2 { font-size: 20px; font-weight: 700; }
 
     .kb-content { padding: 24px 28px; overflow-y: auto; flex: 1; }
 
@@ -351,7 +354,6 @@
 </nav>
 
 <div class="main">
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <h3>Configuration</h3>
     <div>
@@ -376,7 +378,6 @@
     <button class="btn btn-outline" onclick="clearChat()">Clear Chat</button>
   </div>
 
-  <!-- CONVERSE PANEL -->
   <div class="panel active" id="panel-converse">
     <div class="chat-header">
       <span class="badge">gemini-2.5-flash</span>
@@ -399,7 +400,6 @@
     </div>
   </div>
 
-  <!-- KNOWLEDGE BASE PANEL -->
   <div class="panel" id="panel-knowledge">
     <div class="kb-header">
       <h2>Knowledge Base</h2>
@@ -451,7 +451,12 @@
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${role}`;
-    bubble.textContent = text;
+
+    if (role === 'user') {
+      bubble.textContent = text;
+    } else {
+      bubble.innerHTML = text;
+    }
 
     group.appendChild(label);
     group.appendChild(bubble);
@@ -540,8 +545,13 @@
         body: JSON.stringify({ question })
       });
       const data = await res.json();
-      thinking.textContent = res.ok ? data.answer : 'Error: ' + (data.detail || 'Something went wrong');
-      thinking.className = `message-bubble ${res.ok ? 'assistant' : 'assistant'}`;
+      if (res.ok) {
+        thinking.innerHTML = marked.parse(data.answer);
+        thinking.className = 'message-bubble assistant';
+      } else {
+        thinking.textContent = 'Error: ' + (data.detail || 'Something went wrong');
+        thinking.className = 'message-bubble assistant';
+      }
     } catch (e) {
       thinking.textContent = 'Connection error';
     }
